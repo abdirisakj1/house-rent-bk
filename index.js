@@ -13,31 +13,10 @@ const multer = require('multer');
 const fs = require('fs');
 const mime = require('mime-types');
 
-// Ensure uploads directory exists
-const uploadDir = 'uploads';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
 require('dotenv').config();
 const app = express();
 
-// Connect to MongoDB ONCE at startup
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('MongoDB connected!');
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-  });
-
-const bcryptSalt = bcrypt.genSaltSync(10);
-const jwtSecret = 'fasefraw4r5r3wq45wdfgw34twdfg';
-const bucket = 'dawid-booking-app';
-
-app.use(express.json());
-app.use(cookieParser());
-app.use('/uploads', express.static(__dirname+'/uploads'));
+// CORS FIRST!
 app.use(cors({
   credentials: true,
   origin: [
@@ -46,6 +25,16 @@ app.use(cors({
     'http://127.0.0.1:5173'
   ],
 }));
+
+// Ensure uploads directory exists
+const uploadDir = 'uploads';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+app.use(express.json());
+app.use(cookieParser());
+app.use('/uploads', express.static(__dirname+'/uploads'));
 
 async function uploadToS3(path, originalFilename, mimetype) {
   const client = new S3Client({
