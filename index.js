@@ -16,6 +16,10 @@ const mime = require('mime-types');
 require('dotenv').config();
 const app = express();
 
+// Suppress Mongoose strictQuery deprecation warning
+const mongoose = require('mongoose');
+mongoose.set('strictQuery', false);
+
 // CORS FIRST!
 app.use(cors({
   credentials: true,
