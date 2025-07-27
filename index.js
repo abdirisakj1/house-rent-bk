@@ -271,19 +271,36 @@ app.get('/api/places', async (req,res) => {
 });
 
 app.post('/api/bookings', async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
-  const userData = await getUserDataFromReq(req);
+  let userData;
+  try {
+    userData = await getUserDataFromReq(req);
+  } catch (err) {
+    return res.status(401).json({ error: 'Unauthorized: No user found.' });
+  }
+
+  if (!userData || !userData.id) {
+    return res.status(401).json({ error: 'Unauthorized: No user found.' });
+  }
+
   const {
-    place,checkIn,checkOut,numberOfGuests,name,phone,price,
+    place, checkIn, checkOut, numberOfGuests, name, phone, price,
   } = req.body;
-  Booking.create({
-    place,checkIn,checkOut,numberOfGuests,name,phone,price,
-    user:userData.id,
-  }).then((doc) => {
-    res.json(doc);
-  }).catch((err) => {
-    throw err;
-  });
+
+  // Validate required fields
+  if (!place || !checkIn || !checkOut || !numberOfGuests || !name || !phone || !price) {
+    return res.status(400).json({ error: 'All booking fields are required.' });
+  }
+
+  try {
+    const booking = await Booking.create({
+      place, checkIn, checkOut, numberOfGuests, name, phone, price,
+      user: userData.id,
+    });
+    res.json(booking);
+  } catch (err) {
+    console.error('Booking error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 
