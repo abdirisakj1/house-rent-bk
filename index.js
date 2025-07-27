@@ -170,12 +170,20 @@ app.post('/api/upload-by-link', async (req,res) => {
   const newName = 'photo' + Date.now() + '.jpg';
   try {
     const destPath = __dirname + '/' + uploadDir + '/' + newName;
+    console.log('Attempting to download image from:', link);
+    console.log('Saving image to:', destPath);
     await imageDownloader.image({
       url: link,
       dest: destPath,
     });
-    // Return local uploads path
-    res.json('/uploads/' + newName);
+    // Check if file exists after download
+    if (fs.existsSync(destPath)) {
+      console.log('Image saved successfully:', destPath);
+      res.json('/uploads/' + newName);
+    } else {
+      console.error('Image file not found after download:', destPath);
+      res.status(500).json({ error: 'Image file not found after download.' });
+    }
   } catch (err) {
     console.error('Image download error:', err);
     res.status(400).json({ error: 'Failed to download image. Please check the link and try again.' });
