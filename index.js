@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require("mongoose");
+mongoose.set('strictQuery', false);
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User.js');
@@ -16,9 +17,6 @@ const mime = require('mime-types');
 require('dotenv').config();
 const app = express();
 
-// Suppress Mongoose strictQuery deprecation warning
-const mongoose = require('mongoose');
-mongoose.set('strictQuery', false);
 
 // CORS FIRST!
 app.use(cors({
