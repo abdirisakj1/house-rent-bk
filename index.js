@@ -171,13 +171,13 @@ app.post('/api/upload-by-link', async (req,res) => {
   try {
     await imageDownloader.image({
       url: link,
-      dest: '/tmp/' + newName,
+      dest: uploadDir + '/' + newName,
     });
-    const url = await uploadToS3('/tmp/' + newName, newName, mime.lookup('/tmp/' + newName));
-    res.json(url);
+    // Return local uploads path
+    res.json('/uploads/' + newName);
   } catch (err) {
-    console.error('Image download/upload error:', err);
-    res.status(400).json({ error: 'Failed to download or upload image. Please check the link and try again.' });
+    console.error('Image download error:', err);
+    res.status(400).json({ error: 'Failed to download image. Please check the link and try again.' });
   }
 });
 
