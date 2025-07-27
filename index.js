@@ -128,7 +128,11 @@ app.post('/api/login', async (req,res) => {
         role:userDoc.role
       }, jwtSecret, {}, (err,token) => {
         if (err) throw err;
-        res.cookie('token', token).json({
+        res.cookie('token', token, {
+          httpOnly: true,
+          sameSite: 'none',
+          secure: true
+        }).json({
           _id: userDoc._id,
           name: userDoc.name,
           email: userDoc.email,
