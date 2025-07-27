@@ -169,9 +169,10 @@ app.post('/api/upload-by-link', async (req,res) => {
   const {link} = req.body;
   const newName = 'photo' + Date.now() + '.jpg';
   try {
+    const destPath = __dirname + '/' + uploadDir + '/' + newName;
     await imageDownloader.image({
       url: link,
-      dest: uploadDir + '/' + newName,
+      dest: destPath,
     });
     // Return local uploads path
     res.json('/uploads/' + newName);
