@@ -37,7 +37,7 @@ const bucket = 'dawid-booking-app';
 
 app.use(express.json());
 app.use(cookieParser());
-app.use('api/uploads', express.static(__dirname+'/uploads'));
+app.use('/uploads', express.static(__dirname+'/uploads'));
 app.use(cors({
   credentials: true,
   origin: [
@@ -202,7 +202,11 @@ app.post('/api/places', (req,res) => {
 app.get('/api/user-places', (req,res) => {
   mongoose.connect(process.env.MONGO_URL);
   const {token} = req.cookies;
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized: JWT must be provided' });
+  }
   jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    if (err) return res.status(401).json({ error: 'Invalid token' });
     const {id} = userData;
     res.json( await Place.find({owner:id}) );
   });
