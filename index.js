@@ -41,6 +41,7 @@ app.use('/uploads', express.static(__dirname+'/uploads'));
 app.use(cors({
   credentials: true,
   origin: [
+    'https://house-rent-f.vercel.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173'
   ],
@@ -321,6 +322,7 @@ app.delete('/api/users/:id', async (req, res) => {
   });
 });
 
-app.listen(4000, () => {
-  console.log('Server running on http://localhost:4000');
+const port = process.env.PORT || 4000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
