@@ -190,6 +190,10 @@ app.post('/api/places', async (req, res) => {
     console.log('POST /api/places', req.body);
     mongoose.connect(process.env.MONGO_URL);
     const {token} = req.cookies;
+    if (!token) {
+      console.error('JWT missing in POST /api/places');
+      return res.status(401).json({ error: 'JWT must be provided' });
+    }
     const {
       title,address,addedPhotos,description,price,
       perks,extraInfo,checkIn,checkOut,maxGuests,
