@@ -20,7 +20,22 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 require('dotenv').config();
+
 const app = express();
+
+// CORS MUST BE FIRST MIDDLEWARE
+app.use(cors({
+  credentials: true,
+  origin: [
+    'https://house-rent-f.vercel.app',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ],
+}));
+
+app.use(express.json());
+app.use(cookieParser());
+app.use('/uploads', express.static(__dirname+'/uploads'));
 
 // Connect to MongoDB ONCE at startup
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -34,18 +49,6 @@ mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopol
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = 'fasefraw4r5r3wq45wdfgw34twdfg';
 const bucket = 'dawid-booking-app';
-
-app.use(express.json());
-app.use(cookieParser());
-app.use('/uploads', express.static(__dirname+'/uploads'));
-app.use(cors({
-  credentials: true,
-  origin: [
-    'https://house-rent-f.vercel.app',
-    'http://localhost:5173',
-    'http://127.0.0.1:5173'
-  ],
-}));
 
 async function uploadToS3(path, originalFilename, mimetype) {
   const client = new S3Client({
