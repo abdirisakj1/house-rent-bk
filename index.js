@@ -185,22 +185,36 @@ app.post('/api/upload', photosMiddleware.array('photos', 100), async (req,res) =
   res.json(uploadedFiles);
 });
 
-app.post('/api/places', (req,res) => {
-  mongoose.connect(process.env.MONGO_URL);
-  const {token} = req.cookies;
-  const {
-    title,address,addedPhotos,description,price,
-    perks,extraInfo,checkIn,checkOut,maxGuests,
-  } = req.body;
-  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-    if (err) throw err;
-    const placeDoc = await Place.create({
-      owner:userData.id,price,
-      title,address,photos:addedPhotos,description,
+app.post('/api/places', async (req, res) => {
+  try {
+    console.log('POST /api/places', req.body);
+    mongoose.connect(process.env.MONGO_URL);
+    const {token} = req.cookies;
+    const {
+      title,address,addedPhotos,description,price,
       perks,extraInfo,checkIn,checkOut,maxGuests,
+    } = req.body;
+    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+      if (err) {
+        console.error('JWT error:', err);
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+      try {
+        const placeDoc = await Place.create({
+          owner:userData.id,price,
+          title,address,photos:addedPhotos,description,
+          perks,extraInfo,checkIn,checkOut,maxGuests,
+        });
+        res.json(placeDoc);
+      } catch (dbErr) {
+        console.error('DB error:', dbErr);
+        res.status(500).json({ error: 'Database error' });
+      }
     });
-    res.json(placeDoc);
-  });
+  } catch (err) {
+    console.error('Error in /api/places:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.get('/api/user-places', (req,res) => {
